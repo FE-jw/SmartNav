@@ -1,0 +1,2 @@
+# SmartNav
+Web Navigation Plugin
