@@ -14,7 +14,7 @@ class SmartNav{
 		this.transPoint = options?.transPoint ? options.transPoint * window.innerHeight : 0;
 		this.activeClass = options?.activeClass;
 		this.easing = options?.easing ?? 'ease';
-		this.iosNotch = options?.iosNotch ?? this.getNotchValue;
+		this.iosNotch = options?.iosNotch ?? this.notchValue;
 		this.#init();
 
 		window.addEventListener('scroll', () => {this.#activeNav()});
@@ -22,7 +22,7 @@ class SmartNav{
 		window.addEventListener('orientationchange', () => {this.#activeNav()});
 	}
 
-	get getNotchValue(){
+	get notchValue(){
 		const tempEle = document.createElement('div');
 		tempEle.setAttribute('style', 'top:constant(safe-area-inset-top);top:env(safe-area-inset-top)');
 		const value = Number(window.getComputedStyle(tempEle).top.replace('px', ''));
