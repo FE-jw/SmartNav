@@ -4,45 +4,69 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
-<title>Smart Nav</title>
-<style>
-	*	{margin:0;padding:0;}
-	body	{line-height:1.2;font-family:sans-serif;font-size:14px;color:#000;}
-	header	{height:100px;margin-bottom:-100px;position:sticky;top:0;}
-	nav	{display:flex;justify-content:center;align-items:center;background-color:#fff;}
-	nav a	{display:inline-flex;align-items:center;height:100px;padding:0 20px;font-size:16px;font-weight:bold;color:#000;}
-	nav a:hover,
-	nav a.on	{color:#fff;background-color:#000;}
-	section	{display:flex;justify-content:center;align-items:center;height:100vh;font-size:40px;font-weight:bold;}
-	#content-1	{background-color:#FED049;}
-	#content-2	{background-color:#CFFDE1;}
-	#content-3	{background-color:#68B984;}
-</style>
+<title>SmartNav</title>
+<link rel="stylesheet" href="style.min.css">
 </head>
+
 <body>
 <div class="wrap">
-	<header>
-		<nav id="SmartNav">
-			<a href="#content-1">nav-1</a>
-			<a href="#content-2">nav-2</a>
-			<a href="#content-3">nav-3</a>
-		</nav>
-	</header>
-	<section id="content-1">
-		section 1
-	</section>
-	<section id="content-2">
-		section 2
-	</section>
-	<section id="content-3">
-		section 3
-	</section>
+	<ul class="nav_1">
+		<li><a href="#EVT_1">EVT_1</a></li>
+		<li><a href="#EVT_2">EVT_2</a></li>
+		<li><a href="#EVT_3">EVT_3</a></li>
+		<li><a href="#EVT_4">EVT_4</a></li>
+	</ul>
+	<nav class="nav_2">
+		<a href="#EVT_1">EVT_1</a>
+		<a href="#EVT_2">EVT_2</a>
+		<a href="#EVT_3">EVT_3</a>
+		<a href="#EVT_4">EVT_4</a>
+	</nav>
+	<div id="EVT_1" class="section">SECTION 1</div>
+	<div id="EVT_2" class="section">SECTION 2</div>
+	<div id="EVT_3" class="section">SECTION 3</div>
+	<div id="EVT_4" class="section">SECTION 4</div>
 </div>
 <script src="SmartNav.js"></script>
 <script>
-window.addEventListener('load', function(){
-	const myNav = new SmartNav('#SmartNav');
-});
+	/*
+	const nav = new Nav('.nav_1', {
+		duration: 500,
+		fixed: document.querySelector('.nav_1').clientHeight,
+		transPoint: 0.3,
+		activeClass: 'active',
+		easing: 'ease',
+		iosNotch: true
+	});
+	*/
+	
+	/*
+	test.nav('.nav_1', {
+		duration: 300,
+		fixed: document.querySelector('.nav_1').clientHeight,
+		transPoint: 0.3,
+		activeClass: 'active',
+		easing: 'ease',
+		iosNotch: true
+	});
+	*/
+	
+	const nav_1 = new SmartNav('.nav_1', {
+		// duration: 300,
+		// easing: 'linear',
+		fixed: document.querySelector('.nav_1').clientHeight,
+		// iosNotch: false,
+		transPoint: 0.3,
+		activeClass: 'active'
+	});
+	
+	const nav_2 = new SmartNav('.nav_2', {
+		// duration: 300,
+		// easing: 'linear',
+		transPoint: 0.4,
+		activeClass: 'active'
+
+	});
 </script>
 </body>
 </html>

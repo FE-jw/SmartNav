@@ -1,0 +1,31 @@
+@charset "utf-8";
+
+*   {margin:0;padding:0;list-style:none;border:0;}
+html    {-webkit-text-size-adjust:none;font-size:10px;}
+body    {font-family:-apple-system,BlinkMacSystemFont,sans-serif;}
+button  {font-family:inherit;font-size:inherit;vertical-align:top;background:none;}
+.flex	{display:flex;justify-content:center;align-items:center;text-align:center;}
+
+// Content
+.nav_1	{display:flex;width:100%;position:fixed;left:0;top:0;background-color:rgba(#000, 0.7);
+	li	{flex:1;}
+	a	{@extend .flex;height:4.0rem;font-size:2.0rem;color:#fff;
+		&.active	{color:#000;background-color:rgba(#fff, 0.8);}
+	}
+}
+.nav_2	{width:10.0rem;position:fixed;right:5.0rem;top:50%;background-color:rgba(#000, 0.7);transform:translateY(-50%);
+	a	{@extend .flex;height:4.0rem;font-size:2.0rem;color:#fff;
+		&.active	{color:#000;background-color:rgba(#fff, 0.8);}
+	}
+}
+
+.section	{@extend .flex;height:80vh;font-size:5.0rem;font-weight:bold;color:#000;background-color:lightyellow;
+	&:nth-child(even)	{background-color:tomato;}
+}
+
+@media all and (min-width: 1024px)	{
+	.nav_1	{
+		a	{height:6.0rem;}
+	}
+	.section	{height:100vh;}
+}

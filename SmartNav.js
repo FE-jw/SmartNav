@@ -6,77 +6,133 @@
 */
 
 class SmartNav{
-	constructor(nav, options){
-		this.nav = nav;
-		this.navList = Array.prototype.slice.call(document.querySelector(nav).querySelectorAll('a'));
-		this.navCont = [];
-		this.duration = 300;
+	constructor(selector, options){
+		this.wrapper = selector;
+		this.navBtns = document.querySelector(selector).querySelectorAll('a');
+		this.duration = options?.duration ?? 500;
+		this.fixed = options?.fixed ?? 0;
+		this.transPoint = options?.transPoint ? options.transPoint * window.innerHeight : 0;
+		this.activeClass = options?.activeClass;
+		this.easing = options?.easing ?? 'ease';
+		this.iosNotch = options?.iosNotch ?? this.getNotchValue;
+		this.#init();
 
-		if(options){
-			this.duration = typeof options.duration != 'undefined' ? options.duration : this.duration;
-		}
-
-		this.initialize();
+		window.addEventListener('scroll', () => {this.#activeNav()});
+		window.addEventListener('resize', () => {this.#activeNav()});
+		window.addEventListener('orientationchange', () => {this.#activeNav()});
 	}
 
-	initialize(){
-		this.navList.forEach(ele => {
-			this.navCont.push(ele.hash);
-			const duration = this.duration;
+	get getNotchValue(){
+		const tempEle = document.createElement('div');
+		tempEle.setAttribute('style', 'top:constant(safe-area-inset-top);top:env(safe-area-inset-top)');
+		const value = Number(window.getComputedStyle(tempEle).top.replace('px', ''));
 
-			ele.addEventListener('click', function(e){
-				e.preventDefault();
+		return value;
+	}
 
-				let navCont = document.getElementById(ele.hash.replace('#', ''));
-				let scrollTop = {};
-				scrollTop.from = window.scrollY;
-				scrollTop.to = scrollTop.from + navCont.getBoundingClientRect().top;
+	get targetHash(){
+		const hashArr = [];
+	
+		this.navBtns.forEach(navBtn => {
+			const id = navBtn.hash.replace('#', '');
+			hashArr.push(id);
+		});
 
-				let start = new Date().getTime();
-				let timer = setInterval(() => {
-					var time = new Date().getTime() - start;
-					var x = easeInQuad(time, scrollTop.from, scrollTop.to - scrollTop.from, duration);
-					window.scrollTo({
-						left: 0,
-						top: x
-					});
-					if(time >= duration){
-						clearInterval(timer);
-						window.scrollTo({
-							left: 0,
-							top: scrollTop.to
+		return hashArr;
+	}
+
+	#activeNav(){
+		if(this.activeClass){
+			const targets = [];
+	
+			this.targetHash.forEach(target => {
+				targets.push(
+					document.getElementById(target)
+				);
+			});
+	
+			targets.forEach(target => {
+				if(target){
+					const rect = {
+						top: target.getBoundingClientRect().top - this.fixed - this.transPoint,
+						bottom: target.getBoundingClientRect().bottom - this.fixed - this.transPoint
+					};
+		
+					if(rect.top <= 0 && rect.bottom > 0){
+						const targetId = target.getAttribute('id');
+						const activeLink = document.querySelector(`${this.wrapper} a[href="#${targetId}"]`);
+						const inactiveLinks = document.querySelectorAll(`${this.wrapper} a:not([href="#${targetId}"])`);
+		
+						inactiveLinks?.forEach(inactiveLink => {
+							if(inactiveLink.classList.contains(this.activeClass)) inactiveLink.classList.remove(this.activeClass);
 						});
-					}
-				}, 1000 / 60);
-
-				//http://easings.net
-				//https://github.com/bameyrick/js-easing-functions/blob/master/src/index.ts
-				//t: current time
-				//b: beginning value(from)
-				//c: change in value(to)
-				//d: duration
-				function linear(t, b, c, d) {
-					return c * t / d + b;
-				}
-
-				function easeInQuad(t, b, c, d){
-					return c * (t /= d) * t + b;
-				}
-
-				/*
-				function easeInQuart(t, b, c, d){
-					return c * (t /= d) * t * t * t + b;
-				}
-
-				function easeInOutQuart(t, b, c, d){
-					if ((t /= d / 2) < 1) {
-						return c / 2 * t * t * t * t + b;
-					}else{
-						return -c / 2 * ((t -= 2) * t * t * t - 2) + b;
+		
+						if(!activeLink?.classList.contains(this.activeClass)) activeLink?.classList.add(this.activeClass);
 					}
 				}
-				*/
+			});
+		}
+	}
+
+	#smoothScroll(target){
+		const targetEle = document.querySelector(target);
+	
+		if(targetEle){
+			const helmet = this.fixed - this.iosNotch;
+			const targetPosition = targetEle.getBoundingClientRect().top;
+			const startPosition = window.scrollY;
+			const distance = targetPosition - helmet;
+			let startTime = null;
+
+			const easingEffect = {
+				linear(t){
+					return t;
+				},
+				ease(t){
+					return t < 0.5 ? 4 * t ** 3 : 0.5 * ((2 * t - 2) ** 3 + 2);
+				},
+				easeIn(t){
+					return t ** 3;
+				},
+				easeOut(t){
+					return 1 - (1 - t) ** 3;
+				}
+			};
+
+			const moveScroll = currentTime => {
+				if(startTime == null) startTime = currentTime;
+
+				const elapsedTime = currentTime - startTime;
+				const easeFunction = easingEffect[this.easing](elapsedTime / this.duration);
+				const currentPosition = startPosition + distance * easeFunction;
+
+				window.scrollTo(0, currentPosition);
+
+				switch(true){
+					case elapsedTime <= this.duration:
+						requestAnimationFrame(moveScroll);
+						break;
+					case currentTime >= elapsedTime:
+						const value = window.scrollY + targetEle.getBoundingClientRect().top - helmet;
+						window.scrollTo(0, value);
+						break;
+					default:
+						break;
+				}
+			};
+
+			requestAnimationFrame(moveScroll);
+		}
+	}
+
+	#init(){
+		this.navBtns.forEach(navBtn => {
+			navBtn.addEventListener('click', event => {
+				event.preventDefault();
+				this.#smoothScroll(event.target.hash);
 			});
 		});
+
+		this.#activeNav();
 	}
 }
