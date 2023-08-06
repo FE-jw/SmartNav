@@ -29,43 +29,17 @@
 </div>
 <script src="SmartNav.js"></script>
 <script>
-	/*
-	const nav = new Nav('.nav_1', {
-		duration: 500,
-		fixed: document.querySelector('.nav_1').clientHeight,
-		transPoint: 0.3,
-		activeClass: 'active',
-		easing: 'ease',
-		iosNotch: true
-	});
-	*/
-	
-	/*
-	test.nav('.nav_1', {
-		duration: 300,
-		fixed: document.querySelector('.nav_1').clientHeight,
-		transPoint: 0.3,
-		activeClass: 'active',
-		easing: 'ease',
-		iosNotch: true
-	});
-	*/
-	
 	const nav_1 = new SmartNav('.nav_1', {
-		// duration: 300,
-		// easing: 'linear',
-		fixed: document.querySelector('.nav_1').clientHeight,
-		// iosNotch: false,
-		transPoint: 0.3,
-		activeClass: 'active'
+		activeClass: 'active',
+		duration: 300,
+		easing: 'easeOut',
+		helmet: document.querySelector('.nav_1'),
+		transOffset: 0.3
 	});
 	
 	const nav_2 = new SmartNav('.nav_2', {
-		// duration: 300,
-		// easing: 'linear',
-		transPoint: 0.4,
-		activeClass: 'active'
-
+		duration: 1000,
+		iosNotch: true
 	});
 </script>
 </body>
