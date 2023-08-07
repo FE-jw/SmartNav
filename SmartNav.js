@@ -9,19 +9,20 @@ class SmartNav{
 	constructor(selector, options){
 		this.wrapper = selector;
 		this.navBtns = document.querySelector(selector).querySelectorAll('a[href^="#"]');
-
+		
 		this.activeClass = options?.activeClass;
 		this.duration = options?.duration ?? 500;
 		this.easing = options?.easing ?? 'ease';
-		this.helmet = this.setHelmet(options?.helmet);
+		this.helmet = options?.helmet ? options.helmet.clientHeight : 0;
 		this.iosNotch = options?.iosNotch ? this.notchValue : 0;
-		this.transOffset = this.setTransOffset(options?.transOffset);
+		this.transOffset = options?.transOffset ?? 0;
 
 		this.init(options);
 	}
 
 	/**
 	 * iOS notch 값 조회
+	 * @returns {number}
 	 */
 	get notchValue(){
 		const tempEle = document.createElement('div');
@@ -33,6 +34,7 @@ class SmartNav{
 
 	/**
 	 * 이동할 영역들의 ID 값 조회
+	 * @returns {array}
 	 */
 	get targetHash(){
 		const hashArr = [];
@@ -47,43 +49,29 @@ class SmartNav{
 
 	/**
 	 * 헤더, 네비 높이 값만큼 간격 적용
-	 * @param {object} helmet - offsetHeight를 반환할 HTML 요소
+	 * @param {object} helmet - clientHeight를 반환할 HTML 요소
 	 * @returns {number}
 	 */
 	setHelmet(helmet){
-		if(helmet ?? typeof helmet == 'object'){
-			const value = helmet.offsetHeight;
-			this.helmet = value;
-			return value;
-		}else{
-			this.helmet = 0;
-			return 0;
-		}
+		const value = helmet.clientHeight;
+		this.helmet = value;
 	}
 
+	/**
+	 * 네비 활성화 지점 변경
+	 * @param {number} transOffset - 1은 뷰포트 높이, 0.3은 뷰포트 높이의 30%를 제외한 지점에서 네비 활성화
+	 * @returns {number}
+	 */
 	setTransOffset(transOffset){
-		if(transOffset){
-			const value = transOffset * window.innerHeight;
-			this.transOffset = value;
-			return value;
-		}else{
-			this.transOffset = 0;
-			return 0;
-		}
+		const value = transOffset * window.innerHeight;
+		this.transOffset = value;
 	}
 
 	/**
 	 * 네비 버튼 on/off class 구분
+	 * @param {array} targets - 이동할 영역 요소들의 배열
 	 */
-	setActiveClass(){
-		const targets = [];
-
-		this.targetHash.forEach(target => {
-			targets.push(
-				document.getElementById(target)
-			);
-		});
-
+	setActiveClass(targets){
 		targets.forEach(target => {
 			if(target){
 				const rect = {
@@ -138,7 +126,9 @@ class SmartNav{
 				}
 			};
 			const moveScroll = currentTime => {
-				if(startTime == null) startTime = currentTime;
+				if(startTime == null){
+					startTime = currentTime;
+				}
 
 				const elapsedTime = currentTime - startTime;
 				const easeFunction = easingEffect[this.easing](elapsedTime / this.duration);
@@ -162,6 +152,7 @@ class SmartNav{
 
 	/**
 	 * 초기화
+	 * @param {object} options - 옵션
 	 */
 	init(options){
 		this.navBtns.forEach(navBtn => {
@@ -171,24 +162,39 @@ class SmartNav{
 			});
 		});
 
-		// on/off class 구분 있는 경우
+		// on/off class 있는 경우
 		if(this.activeClass){
-			this.setActiveClass();
+			const targets = [];
+
+			this.targetHash.forEach(target => {
+				targets.push(
+					document.getElementById(target)
+				);
+			});
+
+			this.setActiveClass(targets);
 
 			['scroll', 'resize', 'orientationchange'].forEach(event => {
-				window.addEventListener(event, () => {this.setActiveClass()});
+				window.addEventListener(event, () => {this.setActiveClass(targets);});
 			});
 		}
 
 		// 헤더, 네비 높이 값만큼 간격 적용 있는 경우
 		if(this.helmet){
+			this.setHelmet(options?.helmet);
+
 			['resize', 'orientationchange'].forEach(event => {
-				window.addEventListener(event, () => {this.setHelmet(options?.helmet)});
+				window.addEventListener(event, () => {this.setHelmet(options?.helmet);});
 			});
 		}
 
-		['load', 'resize', 'orientationchange'].forEach(event => {
-			window.addEventListener(event, () => {this.setTransOffset(options?.transOffset)});
-		});
+		// 네비 활성화 지점 변경 적용 있는 경우
+		if(this.transOffset){
+			this.setTransOffset(options?.transOffset);
+
+			['resize', 'orientationchange'].forEach(event => {
+				window.addEventListener(event, () => {this.setTransOffset(options?.transOffset);});
+			});
+		}
 	}
 }
